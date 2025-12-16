@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    /* Basic Options */
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["esnext", "dom"],
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* Strict Type-Checking Options */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* TypeORM & Decorator Support (CRITICAL) */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    /* Module Interop */
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Source Maps for Debugging */
+    "sourceMap": true,
+    "declaration": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
