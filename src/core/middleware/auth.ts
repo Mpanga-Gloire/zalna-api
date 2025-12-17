@@ -76,8 +76,11 @@ export async function requireAuth(
 
     const userRepo = AppDataSource.getRepository(User);
 
-    // Normalize phone (later you can plug E.164 normalization here if needed)
-    const phone = (supabaseUser.phone as string | null) ?? null;
+    // Normalize phone (avoid empty string which breaks unique constraints)
+    const rawPhone = (supabaseUser.phone as string | null) ?? null;
+    const phone = typeof rawPhone === "string" && rawPhone.trim().length > 0
+      ? rawPhone.trim()
+      : null;
     const email = supabaseUser.email ?? null;
 
     // 🔍 Try to find an existing user by:

@@ -76,7 +76,10 @@ export async function emailPasswordLogin(req: Request, res: Response) {
   const supabaseUser = data.user;
   const userRepo = AppDataSource.getRepository(User);
 
-  const phone = (supabaseUser.phone as string | null) ?? null;
+  const rawPhone = (supabaseUser.phone as string | null) ?? null;
+  const phone = typeof rawPhone === "string" && rawPhone.trim().length > 0
+    ? rawPhone.trim()
+    : null;
   const meta = (supabaseUser.user_metadata || {}) as Record<string, any>;
   const fullName: string | undefined = meta.full_name || meta.name || meta.user_name;
   const resolvedAvatar: string | null =
