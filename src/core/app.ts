@@ -13,10 +13,25 @@ export function createApp(): Application {
   // Core middlewares
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  const allowedOrigins = env.cors.allowedOrigins;
+  const allowAllOrigins = allowedOrigins.includes("*");
+
   app.use(
     cors({
-      origin: env.isDev ? "*" : undefined, // adjust later for production
-    })
+      origin: allowAllOrigins
+        ? true
+        : (origin, callback) => {
+            // Allow non-browser clients (curl/Postman/server-to-server) with no Origin header.
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) return callback(null, true);
+            return callback(null, false);
+          },
+      credentials: !allowAllOrigins,
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      optionsSuccessStatus: 204,
+    }),
   );
   app.use(
     helmet({
