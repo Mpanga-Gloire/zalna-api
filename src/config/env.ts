@@ -46,4 +46,20 @@ export const env = {
     // Storage bucket for media uploads
     bucket: process.env.SUPABASE_STORAGE_BUCKET || "media",
   },
+
+  cors: {
+    /**
+     * Comma-separated list of allowed origins, e.g:
+     * CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+     *
+     * Use "*" to allow all origins (not recommended for production).
+     */
+    allowedOrigins: (process.env.CORS_ORIGINS
+      ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+      : [
+          "http://localhost:3000",
+          "http://localhost:3001",
+          "http://localhost:4001",
+        ]) as string[],
+  },
 };
