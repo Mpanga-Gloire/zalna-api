@@ -12,6 +12,8 @@ import {
 import { NotFoundError } from "../../../core/errors/AppError";
 import { HallService } from "../../halls/service/hall.service";
 import { HallStatus } from "../../halls/model/hall-status.enum";
+import { EmailService } from "../../../core/email/email.service";
+import { env } from "../../../config/env";
 
 /**
  * HostApplicationService
@@ -27,10 +29,12 @@ import { HallStatus } from "../../halls/model/hall-status.enum";
 export class HostApplicationService {
   private readonly repo: Repository<HostApplication>;
   private readonly hallService: HallService;
+  private readonly emailService: EmailService;
 
   constructor() {
     this.repo = AppDataSource.getRepository(HostApplication);
     this.hallService = new HallService();
+    this.emailService = new EmailService();
   }
 
   /**
@@ -165,6 +169,10 @@ export class HostApplicationService {
 
     const saved = await this.repo.save(entity);
 
+    const movedToUnderReview = previousStatus !==
+      HostApplicationStatus.UNDER_REVIEW &&
+      payload.status === HostApplicationStatus.UNDER_REVIEW;
+
     // If we just transitioned to APPROVED, auto-create Hall and attach owner
     const justApproved = previousStatus !== HostApplicationStatus.APPROVED &&
       payload.status === HostApplicationStatus.APPROVED;
@@ -181,6 +189,17 @@ export class HostApplicationService {
         isPremium: false,
         status: HallStatus.DRAFT, // start as DRAFT
         gerantId: entity.applicantUserId, // owner = applicant
+      });
+    }
+
+    // Send applicant notifications on status changes
+    if (movedToUnderReview || justApproved) {
+      await this.emailService.sendHostApplicationStatusEmail({
+        to: entity.contactEmail,
+        contactName: entity.contactName,
+        hallName: entity.hallName,
+        status: payload.status,
+        hostAppUrl: env.email.hostAppUrl,
       });
     }
 
