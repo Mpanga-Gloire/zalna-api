@@ -33,6 +33,19 @@ export class EmailService {
       return;
     }
 
+    // SendGrid requires text/plain first, then text/html if both are present.
+    const content = [];
+    if (params.text) {
+      content.push({ type: "text/plain", value: params.text });
+    }
+    if (params.html) {
+      content.push({ type: "text/html", value: params.html });
+    }
+    // Fallback to at least one part
+    if (content.length === 0) {
+      content.push({ type: "text/plain", value: "" });
+    }
+
     const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
       headers: {
@@ -47,14 +60,7 @@ export class EmailService {
           },
         ],
         from: { email: this.fromAddress },
-        content: [
-          params.html
-            ? { type: "text/html", value: params.html }
-            : { type: "text/plain", value: params.text || "" },
-          params.text && params.html
-            ? { type: "text/plain", value: params.text }
-            : undefined,
-        ].filter(Boolean),
+        content,
       }),
     });
 
