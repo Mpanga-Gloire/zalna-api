@@ -47,6 +47,17 @@ export const env = {
     bucket: process.env.SUPABASE_STORAGE_BUCKET || "media",
   },
 
+  email: {
+    // API key for the transactional email provider (e.g., Resend)
+    providerApiKey: process.env.EMAIL_PROVIDER_API_KEY || "",
+    // From address used for outgoing notifications
+    fromAddress: process.env.EMAIL_FROM || "",
+    // Link to the host dashboard/app the applicant can use once approved
+    hostAppUrl:
+      process.env.HOST_APP_URL ||
+      "https://app.zalna.com/host", // sensible default; override in env
+  },
+
   cors: {
     /**
      * Comma-separated list of allowed origins, e.g:
